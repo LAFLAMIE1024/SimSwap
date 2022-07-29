@@ -50,14 +50,17 @@ class TrainOptions:
         # for training
         self.parser.add_argument('--dataset', type=str, default="/path/to/VGGFace2", help='path to the face swapping dataset')
         self.parser.add_argument('--continue_train', type=str2bool, default='False', help='continue training: load the latest model')
-        self.parser.add_argument('--load_pretrain', type=str, default='./checkpoints/simswap224_test', help='load the pretrained model from the specified location')
-        self.parser.add_argument('--which_epoch', type=str, default='10000', help='which epoch to load? set to latest to use latest cached model')
+        # self.parser.add_argument('--load_pretrain', type=str, default='./checkpoints/simswap224_test', help='load the pretrained model from the specified location')
+        self.parser.add_argument('--load_pretrain', type=str, default='./checkpoints/512', help='load the pretrained model from the specified location')
+        # self.parser.add_argument('--which_epoch', type=str, default='10000', help='which epoch to load? set to latest to use latest cached model')
+        self.parser.add_argument('--which_epoch', type=str, default='520000', help='which epoch to load? set to latest to use latest cached model')
         self.parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
         self.parser.add_argument('--niter', type=int, default=10000, help='# of iter at starting learning rate')
         self.parser.add_argument('--niter_decay', type=int, default=10000, help='# of iter to linearly decay learning rate to zero')
         self.parser.add_argument('--beta1', type=float, default=0.0, help='momentum term of adam')
         self.parser.add_argument('--lr', type=float, default=0.0004, help='initial learning rate for adam')
-        self.parser.add_argument('--Gdeep', type=str2bool, default='False',help='add one downscaling layer and a upsampling layer')
+        # self.parser.add_argument('--Gdeep', type=str2bool, default='False',help='add one downscaling layer and a upsampling layer')
+        self.parser.add_argument('--Gdeep', type=str2bool, default='True',help='add one downscaling layer and a upsampling layer')
 
         # for discriminators         
         self.parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')
