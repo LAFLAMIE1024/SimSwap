@@ -47,7 +47,7 @@ class fsModel(BaseModel):
         if opt.resize_or_crop != 'none' or not opt.isTrain:  # when training at full res this causes OOM
             torch.backends.cudnn.benchmark = True
         self.isTrain = opt.isTrain
-
+        self.deep = opt.Gdeep
         device = torch.device("cuda:0")
 
         if opt.crop_size == 224:
@@ -56,11 +56,8 @@ class fsModel(BaseModel):
             from .fs_networks_512 import Generator_Adain_Upsample, Discriminator
 
         # Generator network
-        self.netG = Generator_Adain_Upsample(input_nc=3, output_nc=3, latent_size=512, n_blocks=9, deep=False)
+        self.netG = Generator_Adain_Upsample(input_nc=3, output_nc=3, latent_size=512, n_blocks=9, deep=self.deep)
         self.netG.to(device)
-
-
-
 
         # Id network
         netArc_checkpoint = opt.Arc_path
@@ -68,8 +65,6 @@ class fsModel(BaseModel):
         self.netArc = netArc_checkpoint['model'].module
         self.netArc = self.netArc.to(device)
         self.netArc.eval()
-
-        print(self.isTrain)
         
         if not self.isTrain:
             pretrained_path = '' if not self.isTrain else opt.load_pretrain
@@ -81,27 +76,21 @@ class fsModel(BaseModel):
             use_sigmoid = True
         else:
             use_sigmoid = False
+            
         self.netD1 = Discriminator(input_nc=3, use_sigmoid=use_sigmoid)
         self.netD2 = Discriminator(input_nc=3, use_sigmoid=use_sigmoid)
         self.netD1.to(device)
         self.netD2.to(device)
 
-        #
         self.spNorm =SpecificNorm()
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False)
-
-        print(opt.continue_train, opt.load_pretrain)
         
         # load networks
         if opt.continue_train or opt.load_pretrain:
-            print('NOW WE START TO CONTINUE TRAIN')
             pretrained_path = '' if not self.isTrain else opt.load_pretrain
-            # print (pretrained_path)
             self.load_network(self.netG, 'G', opt.which_epoch, pretrained_path)
             self.load_network(self.netD1, 'D1', opt.which_epoch, pretrained_path)
             self.load_network(self.netD2, 'D2', opt.which_epoch, pretrained_path)
-
-
 
         if self.isTrain:
             # define loss functions
@@ -112,8 +101,8 @@ class fsModel(BaseModel):
             self.criterionRec = nn.L1Loss()
 
             # Names so we can breakout loss
-            self.loss_names = self.loss_filter('G_GAN', 'G_GAN_Feat', 'G_VGG', 'G_ID', 'G_Rec', 'D_GP',
-                                               'D_real', 'D_fake')
+            self.loss_names = self.loss_filter('G_GAN', 'G_GAN_Feat', 'G_VGG','G_ID',
+                                               'G_Rec', 'D_GP','D_real', 'D_fake')
 
            # initialize optimizers
 
@@ -157,13 +146,14 @@ class fsModel(BaseModel):
         loss_G_GAN, loss_G_GAN_Feat, loss_G_VGG, loss_G_ID, loss_G_Rec = 0,0,0,0,0
 
         img_fake = self.netG.forward(img_att, latent_id)
+        
         if not self.isTrain:
             return img_fake
+        
         img_fake_downsample = self.downsample(img_fake)
         img_att_downsample = self.downsample(img_att)
 
-
-
+        
         # D_Fake
         fea1_fake = self.netD1.forward(img_fake.detach())
         fea2_fake = self.netD2.forward(img_fake_downsample.detach())
