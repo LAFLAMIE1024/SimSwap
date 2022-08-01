@@ -37,9 +37,11 @@ def _totensor(array):
 
 if __name__ == '__main__':
     opt = TestOptions().parse()
-    start_epoch, epoch_iter = 1, 0
+
     crop_size = opt.crop_size
     torch.nn.Module.dump_patches = True
+    imagenet_std    = torch.Tensor([0.229, 0.224, 0.225]).view(3,1,1)
+    imagenet_mean   = torch.Tensor([0.485, 0.456, 0.406]).view(3,1,1)
         
     if crop_size == 512:
         # opt.which_epoch = 550000
@@ -90,7 +92,10 @@ if __name__ == '__main__':
             b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop,cv2.COLOR_BGR2RGB))[None,...].cuda()
 
             #swap_result = model(None, b_align_crop_tenor, latent_id, None, True)[0]
-            swap_result = model.netG(b_align_crop_tenor, latent_id)
+            swap_result = model.netG(b_align_crop_tenor, latent_id).cpu()
+        
+            swap_result = swap_result * imagenet_std
+            swap_result = swap_result + imagenet_mean
         
             swap_result_list.append(swap_result)
             b_align_crop_tenor_list.append(b_align_crop_tenor)
