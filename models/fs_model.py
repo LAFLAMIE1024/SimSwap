@@ -70,6 +70,7 @@ class fsModel(BaseModel):
         self.netArc.eval()
 
         if not self.isTrain:
+            print('HERE WE DONT TRAIN, WE INFER')
             pretrained_path = '' if not self.isTrain else opt.load_pretrain
             self.load_network(self.netG, 'G', opt.which_epoch, pretrained_path)
             return
@@ -99,6 +100,8 @@ class fsModel(BaseModel):
 
 
         if self.isTrain:
+            print('NOW WE START TO CONTINUE TRAIN')
+            
             # define loss functions
             self.loss_filter = self.init_loss_filter(not opt.no_ganFeat_loss, not opt.no_vgg_loss)
 
