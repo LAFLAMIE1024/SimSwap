@@ -88,7 +88,8 @@ if __name__ == '__main__':
 
             b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop,cv2.COLOR_BGR2RGB))[None,...].cuda()
 
-            swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
+            #swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
+            swap_result = model.netG(b_align_crop_tenor, latend_id)
             swap_result_list.append(swap_result)
             b_align_crop_tenor_list.append(b_align_crop_tenor)
 
