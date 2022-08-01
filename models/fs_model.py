@@ -69,6 +69,8 @@ class fsModel(BaseModel):
         self.netArc = self.netArc.to(device)
         self.netArc.eval()
 
+        print(self.isTrain)
+        
         if not self.isTrain:
             pretrained_path = '' if not self.isTrain else opt.load_pretrain
             self.load_network(self.netG, 'G', opt.which_epoch, pretrained_path)
@@ -88,8 +90,11 @@ class fsModel(BaseModel):
         self.spNorm =SpecificNorm()
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False)
 
+        print(opt.continue_train, opt.load_pretrain)
+        
         # load networks
         if opt.continue_train or opt.load_pretrain:
+            print('NOW WE START TO CONTINUE TRAIN')
             pretrained_path = '' if not self.isTrain else opt.load_pretrain
             # print (pretrained_path)
             self.load_network(self.netG, 'G', opt.which_epoch, pretrained_path)
