@@ -34,24 +34,26 @@ def _totensor(array):
     tensor = torch.from_numpy(array)
     img = tensor.transpose(0, 1).transpose(0, 2).contiguous()
     return img.float().div(255)
+
 if __name__ == '__main__':
     opt = TestOptions().parse()
-
     start_epoch, epoch_iter = 1, 0
     crop_size = opt.crop_size
-
     torch.nn.Module.dump_patches = True
+        
     if crop_size == 512:
-        opt.which_epoch = 550000
+        # opt.which_epoch = 550000
         opt.name = '512'
         mode = 'ffhq'
     else:
         mode = 'None'
+        
     logoclass = watermark_image('./simswaplogo/simswaplogo.png')
     model = create_model(opt)
     model.eval()
 
     spNorm =SpecificNorm()
+
     app = Face_detect_crop(name='antelope', root='./insightface_func/models')
     app.prepare(ctx_id= 0, det_thresh=0.6, det_size=(640,640),mode=mode)
 
@@ -67,10 +69,10 @@ if __name__ == '__main__':
         # convert numpy to tensor
         img_id = img_id.cuda()
 
-        #create latent id
+        # create latent id
         img_id_downsample = F.interpolate(img_id, size=(112,112))
-        latend_id = model.netArc(img_id_downsample)
-        latend_id = F.normalize(latend_id, p=2, dim=1)
+        latend_it = model.netArc(img_id_downsample)
+        latend_it = F.normalize(latent_id, p=2, dim=1)
 
 
         ############## Forward Pass ######################
@@ -79,9 +81,8 @@ if __name__ == '__main__':
         img_b_whole = cv2.imread(pic_b)
 
         img_b_align_crop_list, b_mat_list = app.get(img_b_whole,crop_size)
-        # detect_results = None
+        
         swap_result_list = []
-
         b_align_crop_tenor_list = []
 
         for b_align_crop in img_b_align_crop_list:
@@ -90,6 +91,7 @@ if __name__ == '__main__':
 
             #swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
             swap_result = model.netG(b_align_crop_tenor, latend_id)
+        
             swap_result_list.append(swap_result)
             b_align_crop_tenor_list.append(b_align_crop_tenor)
 
@@ -101,7 +103,7 @@ if __name__ == '__main__':
             net.load_state_dict(torch.load(save_pth))
             net.eval()
         else:
-            net =None
+            net = None
 
         reverse2wholeimage(b_align_crop_tenor_list, swap_result_list, b_mat_list, crop_size, img_b_whole, logoclass, \
             os.path.join(opt.output_path, 'result_whole_swapsingle.jpg'), opt.no_simswaplogo,pasring_model =net,use_mask=opt.use_mask, norm = spNorm)
