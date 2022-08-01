@@ -71,8 +71,8 @@ if __name__ == '__main__':
 
         # create latent id
         img_id_downsample = F.interpolate(img_id, size=(112,112))
-        latend_it = model.netArc(img_id_downsample)
-        latend_it = F.normalize(latent_id, p=2, dim=1)
+        latent_id = model.netArc(img_id_downsample)
+        latent_id = F.normalize(latent_id, p=2, dim=1)
 
 
         ############## Forward Pass ######################
@@ -89,8 +89,8 @@ if __name__ == '__main__':
 
             b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop,cv2.COLOR_BGR2RGB))[None,...].cuda()
 
-            #swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
-            swap_result = model.netG(b_align_crop_tenor, latend_id)
+            #swap_result = model(None, b_align_crop_tenor, latent_id, None, True)[0]
+            swap_result = model.netG(b_align_crop_tenor, latent_id)
         
             swap_result_list.append(swap_result)
             b_align_crop_tenor_list.append(b_align_crop_tenor)
