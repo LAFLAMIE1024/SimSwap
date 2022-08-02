@@ -182,6 +182,7 @@ if __name__ == '__main__':
         model.netG.train()
         for interval in range(2):
             random.shuffle(randindex)
+            
             src_image1, src_image2  = train_loader.next()
             
             if step%2 == 0:
@@ -192,6 +193,7 @@ if __name__ == '__main__':
             img_id_112      = F.interpolate(img_id,size=(112,112), mode='bicubic')
             latent_id       = model.netArc(img_id_112)
             latent_id       = F.normalize(latent_id, p=2, dim=1)
+            
             if interval:
                 
                 img_fake        = model.netG(src_image1, latent_id)
@@ -202,13 +204,16 @@ if __name__ == '__main__':
                 loss_Dreal      = (F.relu(torch.ones_like(real_logits) - real_logits)).mean()
 
                 loss_D          = loss_Dgen + loss_Dreal
+                
                 optimizer_D.zero_grad()
                 loss_D.backward()
                 optimizer_D.step()
+                
             else:
                 
                 # model.netD.requires_grad_(True)
                 img_fake        = model.netG(src_image1, latent_id)
+                
                 # G loss
                 gen_logits,feat = model.netD(img_fake, None)
                 
