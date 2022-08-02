@@ -168,6 +168,7 @@ if __name__ == '__main__':
         start   = 0
     else:
         start   = int(opt.which_epoch)
+        
     total_step  = opt.total_step
     import datetime
     print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
@@ -222,7 +223,7 @@ if __name__ == '__main__':
                 
 
                 if step%2 == 0:
-                    #G_Rec
+                    # G_Rec
                     loss_G_Rec  = model.criterionRec(img_fake, src_image1) * opt.lambda_rec
                     loss_G      += loss_G_Rec
 
@@ -245,13 +246,14 @@ if __name__ == '__main__':
                 "D_real":loss_Dreal.item(),
                 "D_loss":loss_D.item()
             }
+            
             if opt.use_tensorboard:
                 for tag, value in errors.items():
                     logger.add_scalar(tag, value, step)
+                    
             message = '( step: %d, ) ' % (step)
             for k, v in errors.items():
                 message += '%s: %.3f ' % (k, v)
-
             print(message)
             with open(log_name, "a") as log_file:
                 log_file.write('%s\n' % message)
@@ -264,8 +266,10 @@ if __name__ == '__main__':
                 zero_img    = (torch.zeros_like(src_image1[0,...]))
                 imgs.append(zero_img.cpu().numpy())
                 save_img    = ((src_image1.cpu())* imagenet_std + imagenet_mean).numpy()
+                
                 for r in range(opt.batchSize):
                     imgs.append(save_img[r,...])
+                    
                 arcface_112     = F.interpolate(src_image2,size=(112,112), mode='bicubic')
                 id_vector_src1  = model.netArc(arcface_112)
                 id_vector_src1  = F.normalize(id_vector_src1, p=2, dim=1)
@@ -279,8 +283,10 @@ if __name__ == '__main__':
                     img_fake    = img_fake * imagenet_std
                     img_fake    = img_fake + imagenet_mean
                     img_fake    = img_fake.numpy()
+                    
                     for j in range(opt.batchSize):
                         imgs.append(img_fake[j,...])
+                        
                 print("Save test data")
                 imgs = np.stack(imgs, axis = 0).transpose(0,2,3,1)
                 plot_batch(imgs, os.path.join(sample_path, 'step_'+str(step+1)+'.jpg'))
