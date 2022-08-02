@@ -73,9 +73,6 @@ class TrainOptions:
         self.parser.add_argument("--sample_freq", type=int, default=1000, help='frequence for sampling')
         self.parser.add_argument("--model_freq", type=int, default=10000, help='frequence for saving the model')
 
-        
-
-
         self.isTrain = True
         
     def parse(self, save=True):
