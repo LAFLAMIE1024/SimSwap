@@ -1,11 +1,3 @@
-'''
-Author: Naiyuan liu
-Github: https://github.com/NNNNAI
-Date: 2021-11-23 17:03:58
-LastEditors: Naiyuan liu
-LastEditTime: 2021-11-23 17:08:08
-Description: 
-'''
 from .base_options import BaseOptions
 
 class TestOptions(BaseOptions):
