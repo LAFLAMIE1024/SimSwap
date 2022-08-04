@@ -33,10 +33,10 @@ def _totensor(array):
 
 if __name__ == '__main__':
     opt = TestOptions().parse()
-    start_epoch, epoch_iter = 1, 0
-    crop_size = opt.crop_size
 
+    crop_size = opt.crop_size
     torch.nn.Module.dump_patches = True
+
     if crop_size == 512:
       if opt.name == str(512):
         opt.which_epoch = 550000
@@ -64,6 +64,7 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         pic_a = opt.pic_a_path
+        
         img_a_whole = cv2.imread(pic_a)
         img_a_align_crop, _ = app.get(img_a_whole,crop_size)
         img_a_align_crop_pil = Image.fromarray(cv2.cvtColor(img_a_align_crop[0],cv2.COLOR_BGR2RGB))
@@ -76,8 +77,8 @@ if __name__ == '__main__':
 
         #create latent id
         img_id_downsample = F.interpolate(img_id, size=(112,112))
-        latend_id = model.netArc(img_id_downsample)
-        latend_id = F.normalize(latend_id, p=2, dim=1)
+        latent_id = model.netArc(img_id_downsample)
+        latent_id = F.normalize(latent_id, p=2, dim=1)
 
 
         ############## Forward Pass ######################
@@ -86,7 +87,6 @@ if __name__ == '__main__':
         img_b_whole = cv2.imread(pic_b)
 
         img_b_align_crop_list, b_mat_list = app.get(img_b_whole, crop_size)
-        # detect_results = None
 
         swap_result_list = []
         b_align_crop_tenor_list = []
@@ -95,7 +95,7 @@ if __name__ == '__main__':
             b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop[0], cv2.COLOR_BGR2RGB))[None,...].cuda()
 
             if opt.new_model == True:
-              swap_result = swap_result_new_model(b_align_crop, model, latend_id)
+              swap_result = swap_result_new_model(b_align_crop, model, latent_id)
             else:
               swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
 
