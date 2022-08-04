@@ -80,7 +80,6 @@ if __name__ == '__main__':
         latent_id = model.netArc(img_id_downsample)
         latent_id = F.normalize(latent_id, p=2, dim=1)
 
-
         ############## Forward Pass ######################
 
         pic_b = opt.pic_b_path
@@ -92,11 +91,12 @@ if __name__ == '__main__':
         b_align_crop_tenor_list = []
 
         for b_align_crop in img_b_align_crop_list:
-            b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop[0], cv2.COLOR_BGR2RGB))[None,...].cuda()
-
+            
             if opt.new_model == True:
+              b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop[0], cv2.COLOR_BGR2RGB))[None,...].cuda()
               swap_result = swap_result_new_model(b_align_crop, model, latent_id)
             else:
+              b_align_crop_tenor = _totensor(cv2.cvtColor(b_align_crop, cv2.COLOR_BGR2RGB))[None,...].cuda()
               swap_result = model(None, b_align_crop_tenor, latent_id, None, True)[0]
 
             swap_result_list.append(swap_result)
