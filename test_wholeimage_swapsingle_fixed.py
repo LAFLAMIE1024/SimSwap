@@ -97,7 +97,7 @@ if __name__ == '__main__':
             if opt.new_model == True:
               swap_result = swap_result_new_model(b_align_crop, model, latent_id)
             else:
-              swap_result = model(None, b_align_crop_tenor, latend_id, None, True)[0]
+              swap_result = model(None, b_align_crop_tenor, latent_id, None, True)[0]
 
             swap_result_list.append(swap_result)
             b_align_crop_tenor_list.append(b_align_crop_tenor)
