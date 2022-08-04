@@ -28,5 +28,5 @@ class TestOptions(BaseOptions):
         self.parser.add_argument('--crop_size', type=int, default=224, help='Crop of size of input image')
         self.parser.add_argument('--Gdeep', action='store_true', help='To specify whether we are using 512 model')
         self.parser.add_argument('--new_model', action='store_true', help='To specify whether we are using 512 model')
-        
+        self.parser.add_argument("--eval_dataset_path", type=str, default='', help="Path to Evaluation Dataset")
         self.isTrain = False
