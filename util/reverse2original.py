@@ -70,38 +70,44 @@ def postprocess(swapped_face, target, target_mask,smooth_mask):
 
     result =  swapped_face * soft_face_mask + target * (1 - soft_face_mask)
     result = result[:,:,::-1]# .astype(np.uint8)
+
     return result
 
-def reverse2wholeimage(b_align_crop_tenor_list,swaped_imgs, mats, crop_size, oriimg, logoclass, save_path = '', \
+def reverse2wholeimage(b_align_crop_tenor_list, swaped_imgs, mats, crop_size, oriimg, logoclass, save_path = '', \
                     no_simswaplogo = False,pasring_model =None,norm = None, use_mask = False):
 
     target_image_list = []
     img_mask_list = []
+
     if use_mask:
         smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).cuda()
     else:
         pass
 
-    # print(len(swaped_imgs))
-    # print(mats)
-    # print(len(b_align_crop_tenor_list))
-    for swaped_img, mat ,source_img in zip(swaped_imgs, mats,b_align_crop_tenor_list):
-        #swaped_img = swaped_img.cpu().detach().numpy().transpose((1, 2, 0))
+    
+    for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
+        # swaped_img = swaped_img.cpu().detach().numpy().transpose((1, 2, 0))
+        
         swaped_img = swaped_img.cpu().detach().numpy().squeeze().transpose((1, 2, 0))
         img_white = np.full((crop_size,crop_size), 255, dtype=float)
 
         # inverse the Affine transformation matrix
         mat_rev = np.zeros([2,3])
+
         div1 = mat[0][0]*mat[1][1]-mat[0][1]*mat[1][0]
+
         mat_rev[0][0] = mat[1][1]/div1
         mat_rev[0][1] = -mat[0][1]/div1
         mat_rev[0][2] = -(mat[0][2]*mat[1][1]-mat[0][1]*mat[1][2])/div1
+
         div2 = mat[0][1]*mat[1][0]-mat[0][0]*mat[1][1]
+
         mat_rev[1][0] = mat[1][0]/div2
         mat_rev[1][1] = -mat[0][0]/div2
         mat_rev[1][2] = -(mat[0][2]*mat[1][0]-mat[0][0]*mat[1][2])/div2
 
         orisize = (oriimg.shape[1], oriimg.shape[0])
+
         if use_mask:
             source_img_norm = norm(source_img)
             source_img_512  = F.interpolate(source_img_norm,size=(512,512))
@@ -114,18 +120,14 @@ def reverse2wholeimage(b_align_crop_tenor_list,swaped_imgs, mats, crop_size, ori
                 target_mask = cv2.resize(tgt_mask, (crop_size,  crop_size))
                 # print(source_img)
                 target_image_parsing = postprocess(swaped_img, source_img[0].cpu().detach().numpy().transpose((1, 2, 0)), target_mask,smooth_mask)
-                
-
                 target_image = cv2.warpAffine(target_image_parsing, mat_rev, orisize)
                 # target_image_parsing = cv2.warpAffine(swaped_img, mat_rev, orisize)
             else:
                 target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)[..., ::-1]
         else:
             target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)
-        # source_image   = cv2.warpAffine(source_img, mat_rev, orisize)
 
         img_white = cv2.warpAffine(img_white, mat_rev, orisize)
-
 
         img_white[img_white>20] =255
 
@@ -150,7 +152,7 @@ def reverse2wholeimage(b_align_crop_tenor_list,swaped_imgs, mats, crop_size, ori
 
         img_mask = np.reshape(img_mask, [img_mask.shape[0],img_mask.shape[1],1])
 
-        # pasing mask
+        # parsing mask
 
         # target_image_parsing = postprocess(target_image, source_image, tgt_mask)
 
@@ -167,10 +169,13 @@ def reverse2wholeimage(b_align_crop_tenor_list,swaped_imgs, mats, crop_size, ori
     # target_image /= 255
     # target_image = 0
     img = np.array(oriimg, dtype=np.float)
+
     for img_mask, target_image in zip(img_mask_list, target_image_list):
         img = img_mask * target_image + (1-img_mask) * img
         
     final_img = img.astype(np.uint8)
+
     if not no_simswaplogo:
         final_img = logoclass.apply_frames(final_img)
+
     cv2.imwrite(save_path, final_img)
