@@ -81,8 +81,6 @@ python train.py --name simswap512_test  --batchSize 16  --gpu_ids 0 --dataset /p
 
 [Colab demo](https://colab.research.google.com/github/neuralchen/SimSwap/blob/main/SimSwap%20colab.ipynb)
 
-<div style="background: yellow; width:140px; font-weight:bold;font-family: sans-serif;">Stronger feature</div>
-
 [Colab for switching specific faces in multi-face videos](https://colab.research.google.com/github/neuralchen/SimSwap/blob/main/MultiSpecific.ipynb) 
 
 [Image face swapping demo & Docker image on Replicate](https://replicate.ai/neuralchen/simswap-image)
