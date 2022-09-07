@@ -15,7 +15,7 @@ import os
 from util.add_watermark import watermark_image
 from util.norm import SpecificNorm
 from parsing_model.model import BiSeNet
-from tqdm import tqdm_notebook as tqdm
+from tqdm.notebook import tqdm as tqdm
 
 def lcm(a, b): return abs(a * b) / fractions.gcd(a, b) if a and b else 0
 
@@ -127,6 +127,12 @@ if __name__ == '__main__':
             os.mkdir(os.path.join(opt.output_path, res))
 
           for i in range(10):
+                        
+            res_path = pair[0] + '_' + pair[1] + '_' + str(i) +  '.jpg'
+            res_path = os.path.join(opt.output_path, res, res_path)            
+            
+            if os.path.exists(res_path): continue
+
             tar = pair[0] + '_' + str(i)
             src = pair[1] + '_' + str(i)
 
@@ -135,12 +141,8 @@ if __name__ == '__main__':
                 
             pic_b_path = os.path.join(dataset, tar + '.png')
             pic_a_path = os.path.join(dataset, src + '.png')
-
-            res_path = pair[0] + '_' + pair[1] + '_' + str(i) +  '.jpg'
-            res_path = os.path.join(opt.output_path, res, res_path)
-
+ 
             pic_a = pic_a_path
-        
             img_a_whole = cv2.imread(pic_a)
                 
             try:
