@@ -130,8 +130,11 @@ if __name__ == '__main__':
             tar = pair[0] + '_' + str(i)
             src = pair[1] + '_' + str(i)
 
-            pic_b_path = os.path.join(dataset, pair[0], tar + '.png')
-            pic_a_path = os.path.join(dataset, pair[1], src + '.png')
+            # pic_b_path = os.path.join(dataset, pair[0], tar + '.png')
+            # pic_a_path = os.path.join(dataset, pair[1], src + '.png')
+                
+            pic_b_path = os.path.join(dataset, tar + '.png')
+            pic_a_path = os.path.join(dataset, src + '.png')
 
             res_path = pair[0] + '_' + pair[1] + '_' + str(i) +  '.jpg'
             res_path = os.path.join(opt.output_path, res, res_path)
@@ -143,7 +146,7 @@ if __name__ == '__main__':
             try:
                 img_a_align_crop, _ = app.get(img_a_whole,crop_size)
             except:
-                print(pic_a)
+                print("picture not found : " + pic_a)
                 
             img_a_align_crop_pil = Image.fromarray(cv2.cvtColor(img_a_align_crop[0],cv2.COLOR_BGR2RGB))
             
@@ -166,7 +169,7 @@ if __name__ == '__main__':
             try:
                 img_b_align_crop_list, b_mat_list = app.get(img_b_whole, crop_size)
             except:
-                print(pic_b)
+                print("picture not found : " + pic_b)
 
             swap_result_list = []
             b_align_crop_tenor_list = []
