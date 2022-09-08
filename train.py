@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-#############################################################
-# File: train.py
-# Created Date: Monday December 27th 2021
-# Author: Chen Xuanhong
-# Email: chenxuanhongzju@outlook.com
-# Last Modified:  Friday, 22nd April 2022 10:49:26 am
-# Modified By: Chen Xuanhong
-# Copyright (c) 2021 Shanghai Jiao Tong University
-#############################################################
-
 import os
 import time
 import random
@@ -106,14 +94,12 @@ if __name__ == '__main__':
 
     opt         = TrainOptions().parse()
     iter_path   = os.path.join(opt.checkpoints_dir, opt.name, 'iter.txt')
-
+    
     sample_path = os.path.join(opt.checkpoints_dir, opt.name, 'samples')
-
     if not os.path.exists(sample_path):
         os.makedirs(sample_path)
     
-    log_path = os.path.join(opt.checkpoints_dir, opt.name, 'summary')
-
+    log_path    = os.path.join(opt.checkpoints_dir, opt.name, 'summary')
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
@@ -129,16 +115,13 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu_ids)
     print("GPU used : ", str(opt.gpu_ids))
 
-    
     cudnn.benchmark = True
-
     
-
+    # Load Model from models.projected_model
     model = fsModel()
-
     model.initialize(opt)
 
-    #####################################################
+    ####################################################################################
     if opt.use_tensorboard:
         tensorboard_writer  = tensorboard.SummaryWriter(log_path)
         logger              = tensorboard_writer
@@ -167,6 +150,7 @@ if __name__ == '__main__':
         start   = int(opt.which_epoch)
         
     total_step  = opt.total_step
+    
     import datetime
     print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     
