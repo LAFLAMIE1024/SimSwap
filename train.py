@@ -1,3 +1,4 @@
+# Preparation
 import os
 import time
 import random
@@ -15,9 +16,11 @@ from util.plot import plot_batch
 from models.projected_model import fsModel
 from data.data_loader_Swapping import GetLoader
 
+# Util
 def str2bool(v):
     return v.lower() in ('true')
 
+# NEW Training options class, different from 
 class TrainOptions:
     def __init__(self):
         self.parser = argparse.ArgumentParser()
@@ -38,15 +41,19 @@ class TrainOptions:
         # for training
         self.parser.add_argument('--dataset', type=str, default="/path/to/VGGFace2", help='path to the face swapping dataset')
         self.parser.add_argument('--continue_train', type=str2bool, default='False', help='continue training: load the latest model')
+        
         # self.parser.add_argument('--load_pretrain', type=str, default='./checkpoints/simswap224_test', help='load the pretrained model from the specified location')
         self.parser.add_argument('--load_pretrain', type=str, default='./checkpoints/512', help='load the pretrained model from the specified location')
+        
         # self.parser.add_argument('--which_epoch', type=str, default='10000', help='which epoch to load? set to latest to use latest cached model')
         self.parser.add_argument('--which_epoch', type=str, default='520000', help='which epoch to load? set to latest to use latest cached model')
+        
         self.parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
         self.parser.add_argument('--niter', type=int, default=10000, help='# of iter at starting learning rate')
         self.parser.add_argument('--niter_decay', type=int, default=10000, help='# of iter to linearly decay learning rate to zero')
         self.parser.add_argument('--beta1', type=float, default=0.0, help='momentum term of adam')
         self.parser.add_argument('--lr', type=float, default=0.0004, help='initial learning rate for adam')
+        
         # self.parser.add_argument('--Gdeep', type=str2bool, default='False',help='add one downscaling layer and a upsampling layer')
         self.parser.add_argument('--Gdeep', type=str2bool, default='True',help='add one downscaling layer and a upsampling layer')
 
@@ -55,6 +62,7 @@ class TrainOptions:
         self.parser.add_argument('--lambda_id', type=float, default=30.0, help='weight for id loss')
         self.parser.add_argument('--lambda_rec', type=float, default=10.0, help='weight for reconstruction loss') 
 
+        # Global Parameters
         self.parser.add_argument("--Arc_path", type=str, default='arcface_model/arcface_checkpoint.tar', help="run ONNX model via TRT")
         self.parser.add_argument("--total_step", type=int, default=1000000, help='total training step')
         self.parser.add_argument("--log_frep", type=int, default=200, help='frequence for printing log information')
@@ -92,6 +100,10 @@ class TrainOptions:
 
 if __name__ == '__main__':
 
+    ####################################################################################
+    #                              Initializing Options                                #
+    ####################################################################################
+    
     opt         = TrainOptions().parse()
     iter_path   = os.path.join(opt.checkpoints_dir, opt.name, 'iter.txt')
     
@@ -117,23 +129,28 @@ if __name__ == '__main__':
 
     cudnn.benchmark = True
     
-    # Load Model from models.projected_model
+    ####################################################################################
+    
+    ### Load Model from models.projected_model
     model = fsModel()
     model.initialize(opt)
 
+    optimizer_G, optimizer_D = model.optimizer_G, model.optimizer_D
+    
     ####################################################################################
+    
     if opt.use_tensorboard:
         tensorboard_writer  = tensorboard.SummaryWriter(log_path)
         logger              = tensorboard_writer
         
     log_name = os.path.join(opt.checkpoints_dir, opt.name, 'loss_log.txt')
-
+    
     with open(log_name, "a") as log_file:
         now = time.strftime("%c")
         log_file.write('================ Training Loss (%s) ================\n' % now)
 
-    optimizer_G, optimizer_D = model.optimizer_G, model.optimizer_D
-
+    ####################################################################################
+    
     loss_avg        = 0
     refresh_count   = 0
     imagenet_std    = torch.Tensor([0.229, 0.224, 0.225]).view(3,1,1)
@@ -151,6 +168,8 @@ if __name__ == '__main__':
         
     total_step  = opt.total_step
     
+    ####################################################################################
+    
     import datetime
     print("Start to train at %s"%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     
@@ -158,19 +177,21 @@ if __name__ == '__main__':
     logo_class.print_start_training()
     model.netD.feature_network.requires_grad_(False)
 
-    # Training Cycle
+    ### Training Cycle
     for step in range(start, total_step):
+        
         model.netG.train()
         for interval in range(2):
             random.shuffle(randindex)
             
             src_image1, src_image2  = train_loader.next()
             
-            if step%2 == 0:
+            if step % 2 == 0:
                 img_id = src_image2
             else:
                 img_id = src_image2[randindex]
 
+            ### Image Preprocessing
             img_id_112      = F.interpolate(img_id,size=(112,112), mode='bicubic')
             latent_id       = model.netArc(img_id_112)
             latent_id       = F.normalize(latent_id, p=2, dim=1)
@@ -208,7 +229,7 @@ if __name__ == '__main__':
                 loss_G          = loss_Gmain + loss_G_ID * opt.lambda_id + feat_match_loss * opt.lambda_feat
                 
 
-                if step%2 == 0:
+                if step % 2 == 0:
                     # G_Rec
                     loss_G_Rec  = model.criterionRec(img_fake, src_image1) * opt.lambda_rec
                     loss_G      += loss_G_Rec
@@ -218,9 +239,11 @@ if __name__ == '__main__':
                 optimizer_G.step()
                 
 
-        ############## Display results and errors ##########
-        ### print out errors
-        # Print out log info
+        ####################################################################################
+        #                       Display results and errors                                 #
+        ####################################################################################
+        
+        ### print out errors & log info
         if (step + 1) % opt.log_frep == 0:
             # errors = {k: v.data.item() if not isinstance(v, int) else v for k, v in loss_dict.items()}
             errors = {
@@ -244,7 +267,7 @@ if __name__ == '__main__':
             with open(log_name, "a") as log_file:
                 log_file.write('%s\n' % message)
 
-        ### display output images
+        ### display output images 
         if (step + 1) % opt.sample_freq == 0:
             model.netG.eval()
             with torch.no_grad():
@@ -275,11 +298,11 @@ if __name__ == '__main__':
                         
                 print("Save test data")
                 imgs = np.stack(imgs, axis = 0).transpose(0,2,3,1)
-                plot_batch(imgs, os.path.join(sample_path, 'step_'+str(step+1)+'.jpg'))
+                plot_batch(imgs, os.path.join(sample_path, 'step_' + str(step + 1) + '.jpg'))
 
         ### save latest model
-        if (step+1) % opt.model_freq==0:
-            print('saving the latest model (steps %d)' % (step+1))
-            model.save(step+1)            
-            np.savetxt(iter_path, (step+1, total_step), delimiter=',', fmt='%d')
+        if (step + 1) % opt.model_freq==0:
+            print('saving the latest model (steps %d)' % (step + 1))
+            model.save(step + 1)            
+            np.savetxt(iter_path, (step + 1, total_step), delimiter=',', fmt='%d')
 #     wandb.finish()
