@@ -1,13 +1,14 @@
 # SimSwap: An Efficient Framework For High Fidelity Face Swapping
 ## Proceedings of the 28th ACM International Conference on Multimedia
-**The official repository with Pytorch**
 
-**Our method can realize **arbitrary face swapping** on images and videos with **one single trained model**.**
+**FORKED from official repository with Pytorch**
+
+**This method can realize **arbitrary face swapping** on images and videos with **one single trained model**.**
 
 Training and test code are now available!
 [ <a href="https://colab.research.google.com/github/neuralchen/SimSwap/blob/main/train.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>](https://colab.research.google.com/github/neuralchen/SimSwap/blob/main/train.ipynb)
 
-Our paper can be downloaded from [[Arxiv]](https://arxiv.org/pdf/2106.06340v1.pdf) [[ACM DOI]](https://dl.acm.org/doi/10.1145/3394171.3413630) 
+Paper can be downloaded from [[Arxiv]](https://arxiv.org/pdf/2106.06340v1.pdf) [[ACM DOI]](https://dl.acm.org/doi/10.1145/3394171.3413630) 
 
 <!-- [[Google Drive]](https://drive.google.com/file/d/1fcfWOGt1mkBo7F0gXVKitf8GJMAXQxZD/view?usp=sharing) 
 [[Baidu Drive ]](https://pan.baidu.com/s/1-TKFuycRNUKut8hn4IimvA) Password: ```ummt``` -->
