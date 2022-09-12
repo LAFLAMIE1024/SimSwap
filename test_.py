@@ -113,28 +113,43 @@ if __name__ == '__main__':
     imagenet_std    = torch.Tensor([0.229, 0.224, 0.225]).view(3,1,1)
     imagenet_mean   = torch.Tensor([0.485, 0.456, 0.406]).view(3,1,1)
 
+    train_loader    = GetLoader(opt.dataset,opt.batchSize,8,1234)
+
+    if not opt.continue_train:
+        start   = 0
+    else:
+        start   = int(opt.which_epoch)
+        
+    total_step  = opt.total_step
+    
+    ####################################################################################
+
     model.netD.feature_network.requires_grad_(False)
-  
     model.netG.eval()
-    with torch.no_grad():
-        imgs        = list()
-        zero_img    = (torch.zeros_like(src_image1[0,...]))
-        imgs.append(zero_img.cpu().numpy())
-        save_img    = ((src_image1.cpu())* imagenet_std + imagenet_mean).numpy()
+    
+    for step in range(start, total_step):
+        
+        src_image1, src_image2  = train_loader.next()
+  
+        with torch.no_grad():
+            imgs        = list()
+            zero_img    = (torch.zeros_like(src_image1[0,...]))
+            imgs.append(zero_img.cpu().numpy())
+            save_img    = ((src_image1.cpu())* imagenet_std + imagenet_mean).numpy()
 
-        for r in range(opt.batchSize):
-            imgs.append(save_img[r,...])
+            for r in range(opt.batchSize):
+                imgs.append(save_img[r,...])
 
-        arcface_112     = F.interpolate(src_image2,size=(112,112), mode='bicubic')
-        id_vector_src1  = model.netArc(arcface_112)
-        id_vector_src1  = F.normalize(id_vector_src1, p=2, dim=1)
+            arcface_112     = F.interpolate(src_image2,size=(112,112), mode='bicubic')
+            id_vector_src1  = model.netArc(arcface_112)
+            id_vector_src1  = F.normalize(id_vector_src1, p=2, dim=1)
 
-        for i in range(opt.batchSize):
+            for i in range(opt.batchSize):
 
-            imgs.append(save_img[i,...])
-            image_infer = src_image1[i, ...].repeat(opt.batchSize, 1, 1, 1)
-            img_fake    = model.netG(image_infer, id_vector_src1).cpu()
+                imgs.append(save_img[i,...])
+                image_infer = src_image1[i, ...].repeat(opt.batchSize, 1, 1, 1)
+                img_fake    = model.netG(image_infer, id_vector_src1).cpu()
 
-            img_fake    = img_fake * imagenet_std
-            img_fake    = img_fake + imagenet_mean
-            img_fake    = img_fake.numpy()
+                img_fake    = img_fake * imagenet_std
+                img_fake    = img_fake + imagenet_mean
+                img_fake    = img_fake.numpy()
