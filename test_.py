@@ -101,10 +101,6 @@ class TrainOptions:
 if __name__ == '__main__':
     
     opt         = TrainOptions().parse()
-
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu_ids)
-    print("GPU used : ", str(opt.gpu_ids))
-
     cudnn.benchmark = True
 
     model = fsModel()
