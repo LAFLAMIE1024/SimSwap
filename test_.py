@@ -153,3 +153,6 @@ if __name__ == '__main__':
                 img_fake    = img_fake * imagenet_std
                 img_fake    = img_fake + imagenet_mean
                 img_fake    = img_fake.numpy()
+
+            # imgs = np.stack(imgs, axis = 0).transpose(0,2,3,1)
+            # plot_batch(imgs, os.path.join(sample_path, 'step_' + str(step + 1) + '.jpg'))
