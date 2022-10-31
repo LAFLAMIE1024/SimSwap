@@ -13,17 +13,6 @@ Paper can be downloaded from [[Arxiv]](https://arxiv.org/pdf/2106.06340v1.pdf) [
 <!-- [[Google Drive]](https://drive.google.com/file/d/1fcfWOGt1mkBo7F0gXVKitf8GJMAXQxZD/view?usp=sharing) 
 [[Baidu Drive ]](https://pan.baidu.com/s/1-TKFuycRNUKut8hn4IimvA) Password: ```ummt``` -->
 
-## Attention
-***This project is for technical and academic use only. Please do not apply it to illegal and unethical scenarios.***
-
-***In the event of violation of the legal and ethical requirements of the user's country or region, this code repository is exempt from liability***
-
-***Please do not ignore the content at the end of this README!***
-
-If you find this project useful, please star it. It is the greatest appreciation of our work.
-
-
-## The first open source high resolution dataset for face swapping!!!
 ## High Resolution Dataset [VGGFace2-HQ](https://github.com/NNNNAI/VGGFace2-HQ)
 
 ## Dependencies
