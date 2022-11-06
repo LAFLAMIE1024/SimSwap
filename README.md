@@ -28,8 +28,6 @@ Paper can be downloaded from [[Arxiv]](https://arxiv.org/pdf/2106.06340v1.pdf) [
 
 ## Training
 
-[Preparation](./docs/guidance/preparation.md)
-
 The training script is slightly different from the original version, e.g., we replace the patch discriminator with the projected discriminator, which saves a lot of hardware overhead and achieves slightly better results.
 
 In order to ensure the normal training, the batch size must be greater than 1.
